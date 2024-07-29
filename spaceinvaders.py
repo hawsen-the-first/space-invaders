@@ -719,6 +719,8 @@ class SpaceInvaders(object):
             self.shipAlive = True
 
     def create_game_over(self, currentTime):
+        global ROUND
+        ROUND = 0
         self.screen.blit(self.background, (0, 0))
         passed = currentTime - self.timer
         if passed < 750:
