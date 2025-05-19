@@ -10,10 +10,21 @@ import json
 from os.path import abspath, dirname
 from random import choice
 
+# Define a function to get the correct resource path for both development and PyInstaller environments
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = abspath(dirname(__file__))
+    
+    return os.path.join(base_path, relative_path)
+
 BASE_PATH = abspath(dirname(__file__))
-FONT_PATH = BASE_PATH + '/fonts/'
-IMAGE_PATH = BASE_PATH + '/images/'
-SOUND_PATH = BASE_PATH + '/sounds/'
+FONT_PATH = resource_path('fonts')
+IMAGE_PATH = resource_path('images')
+SOUND_PATH = resource_path('sounds')
 
 # Colors (R, G, B)
 WHITE = (255, 255, 255)
@@ -25,14 +36,14 @@ RED = (237, 28, 36)
 
 
 SCREEN = display.set_mode((0,0))
-FONT = FONT_PATH + 'space_invaders.ttf'
+FONT = os.path.join(FONT_PATH, 'space_invaders.ttf')
 IMG_NAMES = ['ship', 'mystery',
              'enemy1_1', 'enemy1_2',
              'enemy2_1', 'enemy2_2',
              'enemy3_1', 'enemy3_2',
              'explosionblue', 'explosiongreen', 'explosionpurple',
              'laser', 'enemylaser']
-IMAGES = {name: image.load(IMAGE_PATH + '{}.png'.format(name)).convert_alpha()
+IMAGES = {name: image.load(os.path.join(IMAGE_PATH, '{}.png'.format(name))).convert_alpha()
           for name in IMG_NAMES}
 
 PLAYER_NAME = ['A', 'A', 'A']
@@ -44,8 +55,21 @@ BLOCKERS_POSITION = 1450
 ENEMY_DEFAULT_POSITION = 750  # Initial value for a new game
 ENEMY_MOVE_DOWN = 35
 
-with open(os.path.join("controller-keys.json"), 'r+') as file:
-    button_keys = json.load(file)
+try:
+    controller_keys_path = resource_path('controller-keys.json')
+    with open(controller_keys_path, 'r+') as file:
+        button_keys = json.load(file)
+except Exception as e:
+    print(f"Error loading controller keys: {e}")
+    # Provide default controller keys in case the file can't be loaded
+    button_keys = {
+        "x": 0,
+        "circle": 1,
+        "left_arrow": 11,
+        "right_arrow": 12,
+        "up_arrow": 13,
+        "down_arrow": 14
+    }
 # 0: Left analog horizonal, 1: Left Analog Vertical, 2: Right Analog Horizontal
 # 3: Right Analog Vertical 4: Left Trigger, 5: Right Trigger
 analog_keys = {0:0, 1:0, 2:0, 3:0, 4:-1, 5: -1 }
@@ -257,7 +281,7 @@ class Mystery(sprite.Sprite):
         self.moveTime = 25000
         self.direction = 1
         self.timer = time.get_ticks()
-        self.mysteryEntered = mixer.Sound(SOUND_PATH + 'mysteryentered.wav')
+        self.mysteryEntered = mixer.Sound(os.path.join(SOUND_PATH, 'mysteryentered.wav'))
         self.mysteryEntered.set_volume(0.3)
         self.playSound = True
 
@@ -442,7 +466,7 @@ class SpaceInvaders(object):
         self.clock = time.Clock()
         self.caption = display.set_caption('Space Invaders')
         self.screen = SCREEN
-        self.background = image.load(IMAGE_PATH + 'background.jpg').convert()
+        self.background = image.load(os.path.join(IMAGE_PATH, 'background.jpg')).convert()
         self.startGame = False
         self.mainScreen = True
         self.gameOver = False
@@ -515,10 +539,10 @@ class SpaceInvaders(object):
         for sound_name in ['shoot', 'shoot2', 'invaderkilled', 'mysterykilled',
                            'shipexplosion']:
             self.sounds[sound_name] = mixer.Sound(
-                SOUND_PATH + '{}.wav'.format(sound_name))
+                os.path.join(SOUND_PATH, '{}.wav'.format(sound_name)))
             self.sounds[sound_name].set_volume(0.2)
 
-        self.musicNotes = [mixer.Sound(SOUND_PATH + '{}.wav'.format(i)) for i
+        self.musicNotes = [mixer.Sound(os.path.join(SOUND_PATH, '{}.wav'.format(i))) for i
                            in range(4)]
         for sound in self.musicNotes:
             sound.set_volume(0.5)
