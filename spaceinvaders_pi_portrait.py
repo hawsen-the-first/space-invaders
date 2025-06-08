@@ -38,7 +38,7 @@ RED = (237, 28, 36)
 # Portrait mode screen setup - 1080x1920
 SCREEN_WIDTH = 1080
 SCREEN_HEIGHT = 1920
-SCREEN = display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+SCREEN = display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), FULLSCREEN)
 
 FONT = os.path.join(FONT_PATH, 'space_invaders.ttf')
 IMG_NAMES = ['ship', 'mystery',
@@ -793,6 +793,7 @@ class SpaceInvaders(object):
                 self.mainScreen = True
 
     def main(self):
+        mouse.set_visible(False)
         global ROUND
         while True:
             if self.mainScreen:
@@ -868,3 +869,4 @@ class SpaceInvaders(object):
 if __name__ == '__main__':
     game = SpaceInvaders()
     game.main()
+    
